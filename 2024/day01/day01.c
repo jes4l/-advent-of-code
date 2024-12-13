@@ -19,6 +19,40 @@ int calculate_total_distance(int *left, int *right, int size) {
     return total_distance;
 }
 
+// Function to calculate similarity score
+int calculate_similarity_score(int *left, int *right, int size) {
+    // Find the maximum value in the right list
+    int max_val = 0;
+    for (int i = 0; i < size; i++) {
+        if (right[i] > max_val) {
+            max_val = right[i];
+        }
+    }
+
+    // Allocate memory for the hash table
+    int *right_count = calloc(max_val + 1, sizeof(int));
+    if (!right_count) {
+        perror("Memory allocation failed");
+        return -1;
+    }
+
+    // Count occurrences of each number in the right list
+    for (int i = 0; i < size; i++) {
+        right_count[right[i]]++;
+    }
+
+    // Calculate similarity score
+    int similarity_score = 0;
+    for (int i = 0; i < size; i++) {
+        if (left[i] <= max_val) {
+            similarity_score += left[i] * right_count[left[i]];
+        }
+    }
+
+    free(right_count);
+    return similarity_score;
+}
+
 // Function to read input file into two arrays
 int read_input_file(const char *filename, int **left, int **right) {
     FILE *file = fopen(filename, "r");
@@ -66,8 +100,15 @@ int main() {
         return 1;
     }
 
+    // Calculate total distance
     int total_distance = calculate_total_distance(left, right, size);
     printf("Total distance: %d\n", total_distance);
+
+    // Calculate similarity score
+    int similarity_score = calculate_similarity_score(left, right, size);
+    if (similarity_score >= 0) {
+        printf("Similarity score: %d\n", similarity_score);
+    }
 
     free(left);
     free(right);
